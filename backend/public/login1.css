@@ -1,0 +1,106 @@
+ * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #555879;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      width: 80%;
+      max-width: 1000px;
+      background: linear-gradient(to right, #555879 50%, #98A1BC 50%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .welcome-section {
+      flex: 1;
+      padding: 3rem;
+      background-color: #555879;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .welcome-section h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-section p {
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .login-container {
+      flex: 1;
+      background-color: #98A1BC;
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .login-container h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+
+    .login-container form input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .login-container .sub {
+      background-color: #3e1b00;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .login-container .sub:hover {
+      background-color: #2d1200;
+    }
+
+    .login-container h3 {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: #eee;
+    }
+
+    .login-container a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .welcome-section,
+      .login-container {
+        width: 100%;
+        padding: 2rem;
+        text-align: center;
+      }
+    }

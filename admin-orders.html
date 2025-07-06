@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Order Management - ShoeKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+      background: #f5f6fa;
+      padding: 2rem;
+    }
+    h1 {
+      color: #2f3542;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    th, td {
+      padding: 1rem;
+      border: 1px solid #dcdde1;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #3742fa;
+      color: white;
+    }
+    td {
+      font-size: 0.95rem;
+    }
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>All Orders</h1>
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Products</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    fetch("http://localhost:3000/orders")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#orderTable tbody");
+        tbody.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='5'>No orders found.</td></tr>";
+          return;
+        }
+
+        data.forEach(order => {
+          const productsHtml = order.products.map(p =>
+  `<li>${p.productName || "Unknown Product"} x${p.quantity}</li>`
+).join("");
+
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${order.userId?.email || "Unknown"}</td>
+            <td><ul>${productsHtml}</ul></td>
+            <td>₹${order.totalAmount}</td>
+            <td>${order.status}</td>
+            <td>${new Date(order.createdAt).toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        console.error("🛑 Fetch orders failed:", err);
+        const tbody = document.querySelector("#orderTable tbody");
+        tbody.innerHTML = "<tr><td colspan='5'>Error loading orders.</td></tr>";
+      });
+  </script>
+</body>
+</html>

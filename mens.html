@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShoeKart | Men</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #555879;
+      color: white;
+    }
+
+    .navbar {
+      background-color: #555879;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .menu a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .product-card {
+      background-color: #3e1b00;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .product-card h3 {
+      margin: 0.5rem 0;
+    }
+
+    .product-card .price {
+      font-weight: bold;
+      color: #f0f0f0;
+    }
+
+    .product-card .rating {
+      color: #ffd700;
+    }
+
+    .product-card .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 0.5rem;
+    }
+
+    .product-card button {
+      padding: 0.5rem 1rem;
+      background-color: #98A1BC;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .product-card button:hover {
+      background-color: #7a83a3;
+    }
+
+    .wishlist-btn {
+      background-color: transparent;
+      border: none;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .wishlist-btn:hover {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="brand">ShoeKart</div>
+    <div class="menu">
+      <a href="Ecommerce.html">Home</a>
+      <a href="mens.html">Men</a>
+      <a href="womens.html">Women</a>
+      <a href="kids.html">Kids</a>
+      <a href="wishlist.html" title="Wishlist"><i class="fa-solid fa-heart"></i></a>
+      <a href="cart.html" title="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+  </div>
+
+  <div class="product-grid" id="productGrid"></div>
+
+  <script>
+    const BASE_URL = "http://localhost:3000";
+
+    async function loadMenProducts() {
+      try {
+        const res = await fetch(`${BASE_URL}/products?category=men`);
+        const products = await res.json();
+
+        const grid = document.getElementById("productGrid");
+        grid.innerHTML = "";
+
+        products.forEach(product => {
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <img src="${BASE_URL}${product.image}" alt="${product.name}" />
+            <h3>${product.name}</h3>
+            <div class="price">₹ ${product.price}</div>
+            <div class="rating">★★★★☆</div>
+            <div class="actions">
+              <button onclick='addToCart(${JSON.stringify(product).replace(/'/g, "\\'")})'>Add to Cart</button>
+              <button class="wishlist-btn" onclick="addToWishlist('${product._id}')" title="Add to Wishlist">
+                <i class="fa fa-heart"></i>
+              </button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error("❌ Failed to load products:", err);
+      }
+    }
+
+    function addToCart(product) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const existing = cart.find(p => p.id === product._id);
+
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({
+          id: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: 1
+        });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("✅ Product added to cart!");
+    }
+
+    function addToWishlist(productId) {
+      const email = localStorage.getItem("email");
+      if (!email) {
+        alert("⚠️ Please login to add to wishlist.");
+        return;
+      }
+
+      fetch(`${BASE_URL}/wishlist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, productId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("❤️ Added to Wishlist!");
+        } else {
+          alert("❌ Failed to add to Wishlist.");
+        }
+      })
+      .catch(err => {
+        console.error("❌ Wishlist error:", err);
+        alert("❌ Error adding to Wishlist.");
+      });
+    }
+
+    loadMenProducts();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShoeKart Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/backend/public/login1.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="welcome-section">
+      <h1>Welcome Back</h1>
+      <p>Login to explore the ShoeKart collection!</p>
+    </div>
+
+    <div class="login-container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+
+        <!-- Role toggle links -->
+        <a href="login.html?role=user">Login as User</a>
+        <a href="login.html?role=admin">Login as Admin</a>
+
+        <!-- Hidden role input -->
+        <input type="hidden" name="role" id="roleInput" />
+
+        <input class="sub" type="submit" value="Login" />
+      </form>
+
+      <h3>Don't have an account?
+        <a href="signup.html?role=user">Sign up as User</a> |
+        <a href="signup.html?role=admin">Sign up as Admin</a>
+      </h3>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Get role from URL (default to user)
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get("role") || "user";
+    document.getElementById("roleInput").value = role;
+
+    // ✅ Handle login form submit
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = {
+        email: formData.get("email"),
+        password: formData.get("password"),
+        role: formData.get("role")
+      };
+
+      const BASE_URL = window.location.port === "3000" ? "" : "http://localhost:3000";
+
+      try {
+        const res = await fetch(`${BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        console.log("Login result:", result);
+
+        if (result.success) {
+          // ✅ Save user info
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("role", result.role);
+          localStorage.setItem("email", data.email); // 🔑 For ordering later
+
+          alert("✅ Login successful! Redirecting...");
+
+          // ✅ Redirect based on role
+          if (result.role === "admin") {
+            window.location.href = "/admin-page.html";
+          } else {
+            window.location.href = "/Ecommerce.html";
+          }
+        } else {
+          alert(result.message || "❌ Login failed.");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        alert("⚠️ An error occurred. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

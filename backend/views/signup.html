@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account</title>
+
+  <!-- Fonts and CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/backend/public/login1.css" />
+</head>
+<body>
+<div class="container">
+  <div class="welcome-section">
+    <h1>Join ShoeKart</h1>
+    <p>Create an account to shop your favorite footwear with ease.</p>
+  </div>
+
+  <div class="login-container">
+    <h1>Create Account</h1>
+    <form id="signupForm" method="post">
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <input type="password" name="confirm" placeholder="Confirm Password" required />
+
+      <!-- 👇 Hidden role input (auto-filled via URL) -->
+      <input type="hidden" name="role" id="roleInput" />
+
+      <input class="sub" type="submit" value="Create Account" />
+    </form>
+    <h3>Already have an account? 
+      <a href="../views/login.html">Sign in here</a>
+    </h3>
+  </div>
+</div>
+
+<script>
+  // ✅ Set role from URL (?role=user or ?role=admin)
+  const urlParams = new URLSearchParams(window.location.search);
+  const role = urlParams.get("role") || "user"; // default to user
+  document.getElementById("roleInput").value = role;
+
+  document.getElementById("signupForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      confirm: formData.get("confirm"),
+      role: formData.get("role")
+    };
+
+    if (data.password !== data.confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const BASE_URL = window.location.port === "3000" ? "" : "http://localhost:3000";
+
+    try {
+      const res = await fetch(`${BASE_URL}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert("Account created! Redirecting to login...");
+        window.location.href = "/backend/views/login.html";
+      } else {
+        alert(result.message || "Signup failed.");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert("An error occurred. Please try again.");
+    }
+  });
+</script>
+
+</body>
+</html>

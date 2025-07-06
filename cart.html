@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart | ShoeKart</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #555879;
+      color: white;
+    }
+
+    .navbar {
+      background-color: #555879;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .menu a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 1rem;
+      color: #fff;
+    }
+
+    #cart-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background-color: #3e1b00;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid #888;
+    }
+
+    th {
+      background-color: #2d2f44;
+    }
+
+    .remove-btn {
+      background-color: #ff3c3c;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background-color: #cc2f2f;
+    }
+
+    .buy-btn {
+      margin-top: 2rem;
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background-color: #98A1BC;
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .buy-btn:hover {
+      background-color: #7a83a3;
+    }
+
+    .empty-cart {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="brand">ShoeKart</div>
+    <div class="menu">
+      <a href="Ecommerce.html">Home</a>
+      <a href="mens.html">Men</a>
+      <a href="womens.html">Women</a>
+      <a href="kids.html">Kids</a>
+      <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+  </div>
+
+  <h1>🛒 Your Cart</h1>
+  <div id="cart-container"></div>
+
+  <script>
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const container = document.getElementById("cart-container");
+
+      if (cart.length === 0) {
+        container.innerHTML = "<p class='empty-cart'>Your cart is empty.</p>";
+        return;
+      }
+
+      let total = 0;
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        html += `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>₹${item.price}</td>
+            <td>₹${itemTotal.toFixed(2)}</td>
+            <td><button class="remove-btn" onclick="removeItem(${index})">Remove</button></td>
+          </tr>
+        `;
+      });
+
+      html += `
+          <tr>
+            <td colspan="3"><strong>Grand Total</strong></td>
+            <td colspan="2"><strong>₹${total.toFixed(2)}</strong></td>
+          </tr>
+        </tbody>
+        </table>
+        <button class="buy-btn" onclick="buyNow()">Buy Now</button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function removeItem(index) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    function buyNow() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const userEmail = localStorage.getItem("email");
+      const userRole = localStorage.getItem("role");
+
+      if (!userEmail || !userRole) {
+        alert("⚠️ Please login to place an order.");
+        return;
+      }
+
+      if (userRole !== "user") {
+        alert("❌ Only users can place orders. Please login as user.");
+        return;
+      }
+
+      if (cart.length === 0) {
+        alert("🛒 Your cart is empty.");
+        return;
+      }
+
+      const products = cart.map(item => {
+        if (!item.id) {
+          console.error("🛑 Missing product ID in cart item:", item);
+          return null;
+        }
+        return {
+          productId: item.id,
+          quantity: item.quantity
+        };
+      }).filter(p => p !== null);
+
+      const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      fetch("http://localhost:3000/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: userEmail,
+          products,
+          totalAmount
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("✅ Order placed successfully! Thank you for shopping with ShoeKart.");
+          localStorage.removeItem("cart");
+          renderCart();
+        } else {
+          alert("❌ Failed to place order.");
+          console.error("Order error:", data.message);
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        alert("❌ Server error. Please try again later.");
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", renderCart);
+  </script>
+</body>
+</html>
