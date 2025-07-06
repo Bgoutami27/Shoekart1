@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShoeKart | Home</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background-color: #555879;
+      color: #fff;
+    }
+
+    .navbar {
+      background-color: #555879;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      flex-wrap: wrap;
+    }
+
+    .navbar .brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .navbar .menu {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .navbar .menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .navbar .menu a:hover {
+      color: #ff3c3c;
+    }
+
+    .navbar .icons {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .navbar .icons i {
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: white;
+    }
+
+    .hero {
+      width: 100%;
+      height: 90vh;
+      background: linear-gradient(135deg, #98A1BC 0%, #555879 40%, #3e1b00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+    }
+
+    .scroll-container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      margin-top: 5px;
+      max-width: 1200px;
+    }
+
+    .scroll-track {
+      display: flex;
+      gap: 2rem;
+      transition: transform .01s ease-in-out;
+    }
+
+    .scroll-track img {
+      height: 300px;
+      width: 300px;
+      object-fit: cover;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform .01s ease;
+    }
+
+    .scroll-track img:hover {
+      transform: scale(1.25);
+    }
+
+    .hero-content {
+      color: white;
+      max-width: 40%;
+      text-align: right;
+    }
+
+    .hero-content h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-content p {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero-content .btn {
+      padding: 0.75rem 1.5rem;
+      background-color: #98A1BC;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      transition: background 0.3s ease;
+    }
+
+    .hero-content .btn:hover {
+      background-color: #7a83a3;
+    }
+
+    .footer {
+      background-color: #2d2f44;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .footer-column {
+      min-width: 180px;
+      margin-bottom: 1rem;
+    }
+
+    .footer-column h4 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #f0f0f0;
+    }
+
+    .footer-column a {
+      display: block;
+      color: #ccc;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-column a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding: 1rem;
+      background-color: #222;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Updated Navbar -->
+  <div class="navbar">
+    <div class="brand">ShoeKart</div>
+    <div class="menu">
+      <a href="mens.html">MEN</a>
+      <a href="womens.html">WOMEN</a>
+      <a href="kids.html">KIDS</a>
+    </div>
+    <div class="icons" id="nav-icons">
+      <!-- Login/Logout/Wishlist injected via JS -->
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="scroll-container">
+      <div class="scroll-track" id="carousel-track">
+        <img src="/images/mens/mens11.jpg" alt="Men Footwear" />
+        <img src="/images/womens-removebg-preview.png" alt="Women Footwear" />
+        <img src="/images/kids/kids11.jpg" alt="Kids Footwear" />
+        <img src="/images/slipper.jpg" alt="Slippers" />
+      </div>
+    </div>
+    <div class="hero-content">
+      <h1>Create your own style</h1>
+      <p>Get best pair in best deal<br>Get 50% off on our latest collection</p>
+      <button class="btn" onclick="window.location.href='mens.html'">Shop Now</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-column">
+      <h4>About ShoeKart</h4>
+      <a href="#">About Us</a>
+      <a href="#">Careers</a>
+      <a href="#">Our Stores</a>
+    </div>
+    <div class="footer-column">
+      <h4>Customer Service</h4>
+      <a href="#">Contact Us</a>
+      <a href="#">Returns</a>
+      <a href="#">Shipping Info</a>
+      <a href="#">Order Tracking</a>
+    </div>
+    <div class="footer-column">
+      <h4>Social Media</h4>
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+      <a href="#">Twitter</a>
+      <a href="#">YouTube</a>
+    </div>
+    <div class="footer-column">
+      <h4>Policies</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+      <a href="#">Return Policy</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    &copy; 2025 ShoeKart. All rights reserved.
+  </div>
+
+  <!-- ✅ Carousel Scroll Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const track = document.getElementById('carousel-track');
+
+      setInterval(() => {
+        track.style.transition = 'transform 0.5s ease-in-out';
+        track.style.transform = 'translateX(-320px)'; // 300px img + 20px gap
+
+        setTimeout(() => {
+          const firstImg = track.children[0];
+          track.appendChild(firstImg);
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+        }, 500);
+      }, 1200);
+    });
+  </script>
+
+  <!-- ✅ Login/Logout/Wishlist Script -->
+  <script>
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const navIcons = document.getElementById("nav-icons");
+
+      if (isLoggedIn) {
+        navIcons.innerHTML = `
+          <a href="#" id="logoutBtn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+          <a href="wishlist.html" title="Wishlist"><i class="fa-solid fa-heart"></i></a>
+          <a href="cart.html" title="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+        `;
+
+        document.getElementById("logoutBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("email");
+          localStorage.removeItem("role");
+          alert("Logged out successfully.");
+          window.location.href = "Ecommerce.html";
+        });
+
+      } else {
+        navIcons.innerHTML = `
+          <a href="/backend/views/login.html" title="Login"><i class="fa-solid fa-user"></i></a>
+          <a href="wishlist.html" title="Wishlist"><i class="fa-solid fa-heart"></i></a>
+          <a href="cart.html" title="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
