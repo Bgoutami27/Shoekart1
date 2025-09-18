@@ -1,0 +1,27 @@
+.cartTab{
+    background-color: #353432;
+    color: #eee;
+    position: fixed;
+    width: 1920px;
+    inset: 0 0 0 auto;
+    display: grid;
+    grid-template-rows: 70px 1fr 70px;
+}
+.cartTab h1{
+    padding: 20px;
+    margin: 0;
+    font-weight: 300;
+}
+.cartTab .btn{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+}
+.cartTab .btn button{
+    background-color: antiquewhite;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+}
+.cartTab .btn .close{
+    background-color: #eee;
+}
