@@ -41,7 +41,7 @@ function text1() {
 }
 
 function click() {
-    window.location.assign("http://127.0.0.1:5500/shoe.html"); 
+    window.location.assign("https://shoekart1.onrender.com/shoe.html"); 
 }
 
 function click1() {
@@ -68,4 +68,5 @@ window.text = text;
 window.text1 = text1;
 window.handleContinue = handleContinue;
 window.click1 = click1;
+
 
