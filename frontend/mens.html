@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShoeKart | Men Products</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background-color: #555879; color: white; margin: 0; }
+    .navbar { background-color: #555879; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .navbar a { color: white; margin: 0 1rem; text-decoration: none; }
+
+    .filter-section {
+      background-color: #3e1b00;
+      padding: 1rem;
+      display: none;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .filter-section select {
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: none;
+    }
+    .filter-section button {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+#filterColumn select, #filterColumn button {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 4px;
+  border: none;
+}
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+    }
+    .product-card {
+      background-color: #3e1b00;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .product-card:hover { transform: scale(1.05); }
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .product-card h3 { margin: 0.5rem 0; }
+    .product-card .price { font-weight: bold; color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="brand">ShoeKart</div>
+    <div class="menu">
+      <a href="Ecommerce.html">Home</a>
+      <a href="wishlist.html"><i class="fa-solid fa-heart"></i></a>
+      <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+  </div>
+
+   <!-- Filter Section -->
+<div style="display: flex;">
+  <!-- Filter Column -->
+  <div id="filterColumn" style="width: 200px; display: none; background-color: #3e1b00; padding: 1rem;">
+    <select id="priceMin">
+      <option value="">Min Price</option>
+      <option value="0">₹0</option>
+      <option value="500">₹500</option>
+      <option value="1000">₹1000</option>
+    </select>
+
+    <select id="priceMax">
+      <option value="">Max Price</option>
+      <option value="500">₹500</option>
+      <option value="1000">₹1000</option>
+      <option value="2000">₹2000</option>
+    </select>
+
+    <select id="size">
+      <option value="">Size</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+    </select>
+
+    <select id="rating">
+      <option value="">Min Rating</option>
+      <option value="1">1 ★</option>
+      <option value="2">2 ★</option>
+      <option value="3">3 ★</option>
+      <option value="4">4 ★</option>
+    </select>
+
+    <select id="brand">
+      <option value="">Brand</option>
+      <option value="Nike">Nike</option>
+      <option value="Adidas">Adidas</option>
+      <option value="Puma">Puma</option>
+    </select>
+
+    <select id="color">
+      <option value="">Color</option>
+      <option value="Black">Black</option>
+      <option value="White">White</option>
+      <option value="Red">Red</option>
+      <option value="Blue">Blue</option>
+    </select>
+
+    <button onclick="applyFilters()">Apply Filters</button>
+  </div>
+
+  <!-- Product Grid Column -->
+  <div style="flex: 1; padding: 1rem;">
+    <button id="filterButton" style="background-color: #ff9800; color: white; border: none; padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer;">
+      Filter
+    </button>
+
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+</div>
+
+
+
+  <script>
+    const BASE_URL = "http://localhost:3000";
+    let allProducts = [];
+
+    async function loadMenProducts() {
+      try {
+        const res = await fetch(`${BASE_URL}/products?category=men`);
+        allProducts = await res.json();
+        displayProducts(allProducts);
+      } catch (err) {
+        console.error("❌ Failed to load products:", err);
+      }
+    }
+
+    function displayProducts(products) {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = "";
+      if (products.length === 0) {
+        grid.innerHTML = "<p>No products found.</p>";
+        return;
+      }
+      products.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${BASE_URL}${product.image}" alt="${product.name}" />
+          <h3>${product.name}</h3>
+          <div class="price">₹ ${product.price}</div>
+        `;
+        card.addEventListener("click", () => {
+          window.location.href = `product-details.html?id=${product._id}`;
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      let minPrice = document.getElementById("priceMin").value;
+      let maxPrice = document.getElementById("priceMax").value;
+      let size = document.getElementById("size").value;
+      let rating = document.getElementById("rating").value;
+      let brand = document.getElementById("brand").value;
+      let color = document.getElementById("color").value;
+
+      let filtered = allProducts.filter(product => {
+        return (!minPrice || product.price >= minPrice) &&
+               (!maxPrice || product.price <= maxPrice) &&
+               (!size || product.size == size) &&
+               (!rating || product.rating >= rating) &&
+               (!brand || product.brand === brand) &&
+               (!color || product.color === color);
+      });
+
+      displayProducts(filtered);
+    }
+
+    document.getElementById("filterButton").addEventListener("click", function() {
+  const filterCol = document.getElementById("filterColumn");
+  filterCol.style.display = (filterCol.style.display === "none" || filterCol.style.display === "") ? "block" : "none";
+});
+
+    loadMenProducts();
+    
+  </script>
+</body>
+</html>

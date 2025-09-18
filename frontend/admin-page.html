@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - ShoeKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Roboto", sans-serif; }
+    body { background: linear-gradient(to right, #f1f2f6, #dfe4ea); color: #2f3542; min-height: 100vh; }
+    header { background-color: #2f3542; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; }
+    .icons a { color: white; font-size: 1.2rem; margin-left: 1rem; text-decoration: none; }
+    .icons a:hover { color: #ff6b81; }
+    .nav-links { display: flex; justify-content: space-around; margin: 1rem 0 2rem 0; }
+    .nav-links a {
+      padding: 1rem 2rem; background-color: #3742fa; color: white; border-radius: 10px;
+      font-size: 1.2rem; text-decoration: none; font-weight: bold; display: inline-block;
+      text-align: center; min-width: 180px; transition: background-color 0.3s ease;
+    }
+    .nav-links a:hover { background-color: #2f35c9; }
+    main { padding: 2rem; max-width: 1000px; margin: auto; }
+    section { background: white; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.05); margin-bottom: 2rem; }
+    section h2 { margin-bottom: 1rem; color: #3742fa; font-size: 1.5rem; }
+    form { display: flex; flex-wrap: wrap; gap: 1rem; }
+    form input, form select { flex: 1 1 250px; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; }
+    form button {
+      padding: 0.75rem 1.5rem; background-color: #3742fa; color: white;
+      border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+      transition: background-color 0.2s ease;
+    }
+    form button:hover { background-color: #2f35c9; }
+    #product-list { margin-top: 1rem; display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .product-card { background-color: #f5f6fa; border: 1px solid #dcdde1; border-radius: 10px; padding: 1rem; text-align: center; }
+    .product-card img { max-width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+    .product-card h3 { margin: 0.5rem 0; font-size: 1.1rem; }
+    .product-card p { font-size: 1rem; color: #2f3542; font-weight: bold; }
+    .product-card button { margin-top: 0.5rem; padding: 0.5rem 1rem; background-color: #ff4757; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .product-card button:hover { background-color: #e84118; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Admin Dashboard - ShoeKart</h1>
+    <div class="icons" id="nav-icons"></div>
+  </header>
+
+  <main>
+    <div class="nav-links">
+      <a href="admin-orders.html"><i class="fa-solid fa-box"></i> Orders</a>
+      <a href="admin-analytics.html"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+    </div>
+
+    <section>
+      <h2>Add Product</h2>
+      <form id="addForm" enctype="multipart/form-data">
+        <input type="text" id="name" placeholder="Product Name" required />
+        <input type="number" id="price" placeholder="Price" required />
+        
+        <select id="category" required>
+          <option value="">Select Category</option>
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+          <option value="kids">Kids</option>
+        </select>
+
+        <input type="text" id="size" placeholder="Size (e.g. 7, 8, 9)" />
+        <input type="text" id="brand" placeholder="Brand" />
+        <input type="number" id="rating" placeholder="Rating (1-5)" min="1" max="5" />
+        <input type="text" id="color" placeholder="Color" />
+
+        <input type="file" id="upload" name="imageFile" accept="image/*" />
+        <input type="text" id="image" placeholder="Image URL (or upload)" />
+        
+        <button type="submit">Add Product</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>All Products</h2>
+      <div id="product-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const BASE_URL = "http://localhost:3000";
+
+    if (localStorage.getItem("role") !== "admin") {
+      alert("Access denied. Admins only.");
+      window.location.href = "/backend/views/login.html?role=admin";
+    }
+
+    const form = document.getElementById("addForm");
+    const productList = document.getElementById("product-list");
+
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${BASE_URL}/products`);
+        const data = await res.json();
+        productList.innerHTML = "";
+        data.forEach(product => {
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <img src="${BASE_URL}${product.image}" alt="${product.name}" />
+            <h3>${product.name}</h3>
+            <p>₹${product.price} (${product.category})</p>
+            <p>Brand: ${product.brand || 'N/A'}</p>
+            <p>Size: ${product.size || 'N/A'}</p>
+            <p>Color: ${product.color || 'N/A'}</p>
+            <p>Rating: ${product.rating || 'N/A'} ★</p>
+            <button onclick="deleteProduct('${product._id}')">🗑 Delete</button>
+          `;
+          productList.appendChild(card);
+        });
+      } catch (err) {
+        console.error("❌ Failed to load products:", err);
+        alert("❌ Error loading products.");
+      }
+    }
+
+   form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("name", document.getElementById("name").value);
+  formData.append("price", document.getElementById("price").value);
+  formData.append("category", document.getElementById("category").value);
+  formData.append("size", document.getElementById("size").value);
+  formData.append("brand", document.getElementById("brand").value);
+  formData.append("rating", document.getElementById("rating").value);
+  formData.append("color", document.getElementById("color").value);
+
+  const upload = document.getElementById("upload").files[0];
+  const imageUrl = document.getElementById("image").value;
+
+  if (upload) {
+    formData.append("imageFile", upload);
+  } else if (imageUrl) {
+    formData.append("imageUrl", imageUrl);
+  } else {
+    return alert("Please provide an image (upload or URL)");
+  }
+
+  try {
+    const method = editingProductId ? "PUT" : "POST";
+    const url = editingProductId ? `${BASE_URL}/products/${editingProductId}` : `${BASE_URL}/products`;
+
+    const res = await fetch(url, { method, body: formData });
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+    const result = isJson ? await res.json() : { success: false, message: "Unexpected response format" };
+
+    if (res.ok && result.success) {
+      alert(editingProductId ? "✅ Product updated successfully!" : "✅ Product added successfully!");
+      form.reset();
+      editingProductId = null;
+      form.querySelector("button").textContent = "Add Product";
+      loadProducts();
+    } else {
+      alert("❌ Failed: " + (result.message || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("❌ Error during fetch:", err);
+    alert("Server error.");
+  }
+});
+
+    async function loadProducts() {
+  try {
+    const res = await fetch(`${BASE_URL}/products`);
+    const data = await res.json();
+    productList.innerHTML = "";
+    data.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${BASE_URL}${product.image}" alt="${product.name}" />
+        <h3>${product.name}</h3>
+        <p>₹${product.price} (${product.category})</p>
+        <p>Brand: ${product.brand || 'N/A'}</p>
+        <p>Size: ${product.size || 'N/A'}</p>
+        <p>Color: ${product.color || 'N/A'}</p>
+        <p>Rating: ${product.rating || 'N/A'} ★</p>
+        <button onclick="editProduct('${product._id}')">✏️ Edit</button>
+        <button onclick="deleteProduct('${product._id}')">🗑 Delete</button>
+      `;
+      productList.appendChild(card);
+    });
+  } catch (err) {
+    console.error("❌ Failed to load products:", err);
+    alert("❌ Error loading products.");
+  }
+}
+let editingProductId = null;
+function editProduct(id) {
+  editingProductId = id;
+
+  // Fetch product details
+  fetch(`${BASE_URL}/products/${id}`)
+    .then(res => res.json())
+    .then(product => {
+      document.getElementById("name").value = product.name;
+      document.getElementById("price").value = product.price;
+      document.getElementById("category").value = product.category;
+      document.getElementById("size").value = product.size || "";
+      document.getElementById("brand").value = product.brand || "";
+      document.getElementById("rating").value = product.rating || "";
+      document.getElementById("color").value = product.color || "";
+      document.getElementById("image").value = product.image || "";
+      document.querySelector("#addForm button").textContent = "Update Product";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+    async function deleteProduct(id) {
+      const confirmed = confirm("Are you sure to delete this product?");
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch(`${BASE_URL}/products/${id}`, {
+          method: "DELETE"
+        });
+        const result = await res.json();
+        if (result.success) {
+          loadProducts();
+        } else {
+          alert("❌ Delete failed");
+        }
+      } catch (err) {
+        console.error("❌ Error deleting product:", err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const navIcons = document.getElementById("nav-icons");
+      navIcons.innerHTML = `
+        <a href="#" id="logoutBtn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+      `;
+      document.getElementById("logoutBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem("role");
+        localStorage.removeItem("isLoggedIn");
+        alert("Logged out successfully.");
+        window.location.href = "/backend/views/login.html";
+      });
+    });
+
+    loadProducts();
+  </script>
+</body>
+</html>

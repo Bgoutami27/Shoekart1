@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Settings | ShoeKart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #555879;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    #google_translate_element {
+      margin: 1rem 0;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    .home-btn {
+      margin-top: 1.5rem;
+      padding: 10px 20px;
+      background: #98A1BC;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    .home-btn:hover {
+      background: #7a83a3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌎 Choose Your Language</h1>
+  <p>Pick a language below to translate the entire website:</p>
+
+  <!-- ✅ Google Translate Widget Container -->
+  <div id="google_translate_element"></div>
+
+  <!-- ✅ Button to Go to Home Page -->
+  <button class="home-btn" onclick="goHome()">🏠 Go to Home</button>
+
+  <!-- ✅ Google Translate Script -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: 'en',
+          includedLanguages: 'en,hi,fr,es,ar,zh-CN',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        },
+        'google_translate_element'
+      );
+    }
+
+    function goHome() {
+      // Redirect to your homepage
+      window.location.href = "./Ecommerce.html"; 
+      // Change path if Ecommerce.html is in another folder
+    }
+  </script>
+  
+  <script type="text/javascript" 
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Settings | ShoeKart</title>
+  <style>
+    body { font-family: Arial; background: #555879; color: white; padding: 20px; }
+    form { background: #2d2f44; padding: 20px; border-radius: 8px; width: 320px; margin: auto; }
+    input, textarea { width: 100%; padding: 8px; margin: 8px 0; border-radius: 4px; border: none; }
+    button { background: #98A1BC; color: white; padding: 10px; width: 100%; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #7a83a3; }
+    .message { text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Profile Settings</h2>
+
+<form id="profileForm">
+  <input type="text" name="name" placeholder="Full Name" required />
+  <input type="email" name="email" placeholder="Email" required readonly />
+  <input type="text" name="phone" placeholder="Phone" />
+  <textarea name="address" placeholder="Address"></textarea>
+  <button type="submit">Update Profile</button>
+</form>
+
+<div class="message" id="message"></div>
+
+<script>
+  const BASE_URL = "http://localhost:3000"; 
+  const email = localStorage.getItem("email"); 
+  const safeEmail = encodeURIComponent(email);
+
+  const form = document.getElementById("profileForm");
+  const message = document.getElementById("message");
+
+  // ✅ Function to fetch name (like email)
+  async function getUserName() {
+    try {
+      const res = await fetch(`${BASE_URL}/api/profile/${safeEmail}`);
+      const data = await res.json();
+
+      if (data.success && data.profile) {
+        return data.profile.name || "New User";
+      }
+      return "New User";
+    } catch (err) {
+      console.error("❌ Error fetching name:", err);
+      return "New User";
+    }
+  }
+
+  // ✅ Load profile (uses getUserName for name)
+  async function loadProfile() {
+    if (!email) {
+      message.innerText = "⚠️ Please log in to view your profile.";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/profile/${safeEmail}`);
+      const data = await res.json();
+
+      if (!data.success || !data.profile) {
+        message.innerText = "⚠️ Failed to load profile.";
+        return;
+      }
+
+      const profile = data.profile;
+
+      // ✅ Use name function
+      form.name.value = await getUserName();
+      form.email.value = profile.email || "";
+      form.phone.value = profile.phone || "";
+      form.address.value = profile.address || "";
+
+    } catch (err) {
+      console.error("❌ Error loading profile:", err);
+      message.innerText = "⚠️ Error loading profile.";
+    }
+  }
+
+  // ✅ Update profile
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const profileData = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/profile/${safeEmail}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData)
+      });
+
+      const result = await res.json();
+      message.innerText = result.success 
+        ? "✅ Profile updated!" 
+        : "❌ Failed to update profile.";
+    } catch (err) {
+      console.error("❌ Update profile error:", err);
+      message.innerText = "⚠️ Error updating profile.";
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", loadProfile);
+</script>
+
+</body>
+</html>

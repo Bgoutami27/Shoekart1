@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShoeKart | Product Details</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background-color: #555879; color: white; margin: 0; }
+    .navbar { background-color: #555879; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .navbar a { color: white; margin: 0 1rem; text-decoration: none; }
+
+    .container { display: flex; gap: 2rem; padding: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .container img { width: 350px; border-radius: 8px; }
+    .details { max-width: 400px; }
+    .price { font-weight: bold; margin: 1rem 0; }
+    .category { margin: 0.5rem 0; font-style: italic; color: #ffdd99; }
+    button { padding: 0.5rem 1rem; margin: 0.5rem; background-color: #98A1BC; border: none; color: white; cursor: pointer; border-radius: 5px; }
+    button:hover { background-color: #7a83a3; }
+    .wishlist-btn { background-color: red; }
+    .back-btn { background-color: #3e1b00; }
+    .back-btn:hover { background-color: #5c2a00; }
+  </style>
+</head>
+<body>
+  <!-- ✅ Navbar Added -->
+  <div class="navbar">
+    <div class="brand">ShoeKart</div>
+    <div class="menu">
+      <a href="Ecommerce.html">Home</a>
+      <a href="wishlist.html" title="Wishlist"><i class="fa-solid fa-heart"></i></a>
+      <a href="cart.html" title="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+  </div>
+
+  <div class="container">
+    <img id="productImage" src="" alt="Product Image">
+    <div class="details">
+      <h2 id="productName"></h2>
+      <div class="price" id="productPrice"></div>
+      <div class="category" id="productCategory"></div>
+      <p id="productDesc"></p>
+      <button onclick="addToCart()">Add to Cart</button>
+      <button class="wishlist-btn" onclick="addToWishlist()">Add to Wishlist</button>
+      <button class="back-btn" onclick="goBackToCategory()">⬅ Back to Category</button>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = "http://localhost:3000";
+    const email = localStorage.getItem("email");
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+    let productData = {};
+
+    async function loadProductDetails() {
+      try {
+        const res = await fetch(`${BASE_URL}/products/${productId}`);
+        productData = await res.json();
+
+        document.getElementById("productImage").src = BASE_URL + productData.image;
+        document.getElementById("productName").innerText = productData.name;
+        document.getElementById("productPrice").innerText = "₹ " + productData.price;
+        document.getElementById("productDesc").innerText = productData.description || "No description available.";
+        document.getElementById("productCategory").innerText = "Category: " + (productData.category || "Uncategorized");
+      } catch (err) {
+        console.error("❌ Failed to load product:", err);
+      }
+    }
+
+    async function addToCart() {
+      if (!email) { alert("⚠️ Please login to add to cart."); return; }
+      try {
+        const res = await fetch(`${BASE_URL}/cart`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, productId: productData._id, quantity: 1 })
+        });
+        const data = await res.json();
+        alert(data.success ? "✅ Added to Cart!" : "❌ Failed to add to Cart.");
+      } catch (err) { console.error(err); }
+    }
+
+    async function addToWishlist() {
+      if (!email) { alert("⚠️ Please login to add to wishlist."); return; }
+      try {
+        const res = await fetch(`${BASE_URL}/wishlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, productId: productData._id })
+        });
+        const data = await res.json();
+        alert(data.success ? "❤️ Added to Wishlist!" : "❌ Failed to add to Wishlist.");
+      } catch (err) { console.error(err); }
+    }
+
+    function goBackToCategory() {
+      if (!productData.category) {
+        window.location.href = "Ecommerce.html";
+        return;
+      }
+
+      const category = productData.category.toLowerCase();
+      if (category === "men") window.location.href = "mens.html";
+      else if (category === "women") window.location.href = "womens.html";
+      else if (category === "kids") window.location.href = "kids.html";
+      else window.location.href = "Ecommerce.html";
+    }
+
+    loadProductDetails();
+  </script>
+</body>
+</html>
