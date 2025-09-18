@@ -25,11 +25,24 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // -------------------- MIDDLEWARE --------------------
+const allowedOrigins = [
+  "https://shoekart1.onrender.com",
+  "http://localhost:3000" // optional, for local testing
+];
+
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
-  credentials: false
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser requests (like Postman)
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
 }));
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
