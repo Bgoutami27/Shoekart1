@@ -1,3 +1,4 @@
+// -------------------- IMPORTS --------------------
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
@@ -6,59 +7,79 @@ const cors = require("cors");
 const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
+require("dotenv").config();
 
+// -------------------- APP SETUP --------------------
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Ensure uploads/ directory exists
 const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-// Multer setup
+// Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
 const upload = multer({ storage });
 
-// Middleware
+// -------------------- MIDDLEWARE --------------------
 app.use(cors({
-  origin: "http://127.0.0.1:5500",
+  origin: "*",
   methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
   credentials: false
 }));
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "../frontend")));
+app.use("/backend/views", express.static(path.join(__dirname, "views")));
+app.use("/backend/public", express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "../images")));
 app.use("/uploads", express.static(uploadDir));
 
-// MongoDB connection
-mongoose.connect("mongodb://127.0.0.1:27017/shoekart", {
+// -------------------- DATABASE CONNECTION --------------------
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-});
-mongoose.connection.on("connected", () => console.log("MongoDB connected"));
-mongoose.connection.on("error", err => console.error("MongoDB error:", err));
+})
+.then(() => console.log("✅ MongoDB Atlas connected successfully"))
+.catch(err => console.error("❌ MongoDB connection error:", err));
 
-// Schemas
+// -------------------- SCHEMAS --------------------
 const UserSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   password: String,
-  role: { type: String, enum: ["user", "admin"], default: "user" },
-  isFirstLogin: { type: Boolean, default: true },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }]
+  role: { type: String, default: "user" },
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+  cart: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      quantity: { type: Number, default: 1 }
+    }
+  ]
 });
 
-const ProductSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
-  image: String,
-  category: { type: String, enum: ["men", "women", "kids"], required: true }
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  category: { type: String, enum: ["men", "women", "kids"], required: true },
+  description: { type: String, default: "" },
+  image: { type: String, required: true },
+
+  // New fields
+  size: { type: String, default: "" },
+  brand: { type: String, default: "" },
+  rating: { type: Number, min: 1, max: 5, default: null },
+  color: { type: String, default: "" },
+
+  createdAt: { type: Date, default: Date.now }
 });
+
 
 const OrderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -75,11 +96,79 @@ const OrderSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const User = mongoose.model("User", UserSchema);
-const Product = mongoose.model("Product", ProductSchema);
-const Order = mongoose.model("Order", OrderSchema);
+const profileSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  phone: String,
+  address: String,
+});
 
-// Routes
+// -------------------- MODELS --------------------
+const User = mongoose.model("User", UserSchema);
+const Product = mongoose.model("Product", productSchema);  // ✅ FIXED
+const Order = mongoose.model("Order", OrderSchema);
+const Profile = mongoose.model("Profile", profileSchema);
+
+
+// GET profile
+// ✅ Get profile by email and auto-create if not exists
+app.get("/api/profile/:email", async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+
+    // Find Profile
+    let profile = await Profile.findOne({ email });
+
+    // Find User for name
+    const user = await User.findOne({ email });
+
+    // ✅ Auto-create profile if not exists
+    if (!profile) {
+      profile = new Profile({
+        name: user?.name || "New User",  // fetch actual name from User collection
+        email,
+        phone: "",
+        address: ""
+      });
+      await profile.save();
+    }
+
+    res.json({ success: true, profile });
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+
+// ✅ Update or create profile
+// ✅ Update profile by email
+app.put("/api/profile/:email", async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    const { name, phone, address } = req.body;
+
+    // Update or create profile
+    let profile = await Profile.findOne({ email });
+    if (!profile) {
+      profile = new Profile({ email, name, phone, address });
+    } else {
+      profile.name = name;
+      profile.phone = phone;
+      profile.address = address;
+    }
+    await profile.save();
+
+    // ✅ Sync name to User collection
+    await User.updateOne({ email }, { $set: { name } });
+
+    res.json({ success: true, message: "Profile updated successfully", profile });
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 // Signup
 app.post("/signup", async (req, res) => {
@@ -91,7 +180,14 @@ app.post("/signup", async (req, res) => {
     if (exists) return res.status(409).json({ success: false, message: "Email already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const newUser = await new User({ name, email, password: hashed, role }).save();
+
+    // ✅ Save name to MongoDB
+    const newUser = await new User({ 
+      name, 
+      email, 
+      password: hashed, 
+      role 
+    }).save();
 
     res.json({ success: true, role: newUser.role });
   } catch (err) {
@@ -125,7 +221,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Wishlist
+// -------------------- WISHLIST ROUTES --------------------
 app.post("/wishlist", async (req, res) => {
   try {
     const { email, productId } = req.body;
@@ -155,27 +251,183 @@ app.get("/wishlist/:email", async (req, res) => {
   }
 });
 
-// Product APIs
-app.get("/products", async (req, res) => {
+app.delete("/wishlist/remove", async (req, res) => {
   try {
-    const products = await Product.find(req.query.category ? { category: req.query.category } : {});
-    res.json(products);
+    const { email, productId } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    await User.updateOne({ email }, { $pull: { wishlist: productId } });
+    res.json({ success: true, message: "Product removed from wishlist" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch products" });
+    console.error("❌ Wishlist removal error:", err);
+    res.status(500).json({ success: false, message: "Failed to remove from wishlist" });
   }
 });
 
+// -------------------- CART ROUTES --------------------
+// -------------------- SAFE CART ROUTE --------------------
+app.get("/cart/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    const user = await User.findOne({ email })
+      .populate("cart.productId")
+      .lean(); // lean() for faster, plain JS objects
+
+    if (!user || !Array.isArray(user.cart)) {
+      // Always return an empty array instead of 404 or HTML
+      return res.status(200).json([]);
+    }
+
+    // Filter out broken or missing product references
+    const cleanedCart = user.cart
+      .filter(item => item.productId) // removes null/undefined products
+      .map(item => ({
+        _id: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity
+      }));
+
+    res.status(200).json(cleanedCart);
+  } catch (err) {
+    console.error("Get cart error:", err);
+    // Even on server error, send empty array so frontend doesn't break
+    res.status(200).json([]);
+  }
+});
+
+app.post("/cart", async (req, res) => {
+  try {
+    const { email, productId, quantity } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    const existing = user.cart.find(item => item.productId.toString() === productId);
+    if (existing) {
+      existing.quantity += quantity || 1;
+    } else {
+      user.cart.push({ productId, quantity: quantity || 1 });
+    }
+
+    await user.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Add cart error:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
+app.delete("/cart/remove", async (req, res) => {
+  try {
+    const { email, productId } = req.body;
+
+    // Find user & populate products
+    const user = await User.findOne({ email }).populate("cart.productId");
+    if (!user) {
+      return res.status(200).json([]); // Always send array
+    }
+
+    // Remove the product from the cart
+    user.cart = user.cart.filter(
+      item => item.productId && item.productId._id.toString() !== productId
+    );
+
+    await user.save();
+
+    // Prepare cleaned cart response
+    const cleanedCart = user.cart
+      .filter(item => item.productId) // remove broken refs
+      .map(item => ({
+        _id: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity
+      }));
+
+    res.status(200).json(cleanedCart);
+  } catch (err) {
+    console.error("Remove cart error:", err);
+    res.status(200).json([]); // Still return array on error
+  }
+});
+
+
+
+// -------------------- PRODUCT ROUTES --------------------
+app.get("/products", async (req, res) => {
+  try {
+    const { category, priceMin, priceMax, size, rating, brand, color } = req.query;
+
+    let filter = {};
+
+    if (category) filter.category = category;
+    if (size) filter.size = size;
+    if (brand) filter.brand = brand;
+   if (color) {
+  filter.color = { $regex: new RegExp(`^${color}$`, "i") };
+}
+
+    if (rating) filter.rating = { $gte: Number(rating) };
+    if (priceMin || priceMax) filter.price = {};
+    if (priceMin) filter.price.$gte = Number(priceMin);
+    if (priceMax) filter.price.$lte = Number(priceMax);
+
+    const products = await Product.find(filter);
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
+// ✅ Get single product by ID
+app.get("/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ✅ Add product (Admin)
 app.post("/products", upload.single("imageFile"), async (req, res) => {
   try {
-    const { name, price, category, imageUrl } = req.body;
-    if (!name || !price || !category) return res.status(400).json({ success: false, message: "All fields required" });
+    console.log("REQ BODY:", req.body); // <--- debug
 
-    let image = "";
-    if (req.file) image = `/uploads/${req.file.filename}`;
-    else if (imageUrl) image = imageUrl;
-    else return res.status(400).json({ success: false, message: "Image is required" });
+    const { name, price, category, description } = req.body;
+    const size = req.body.size || "";
+    const brand = req.body.brand || "";
+    const color = req.body.color || "";
+    const rating = req.body.rating ? Number(req.body.rating) : null;
+    const imageUrl = req.body.imageUrl;
 
-    const product = new Product({ name, price, category, image });
+    let imagePath = "";
+
+    if (req.file) {
+      imagePath = "/uploads/" + req.file.filename;
+    } else if (imageUrl) {
+      imagePath = imageUrl;
+    } else {
+      return res.status(400).json({ success: false, message: "Image required" });
+    }
+
+    const product = new Product({
+      name,
+      price,
+      category,
+      description,
+      size,
+      brand,
+      color,
+      rating,
+      image: imagePath
+    });
+
     await product.save();
     res.json({ success: true, product });
   } catch (err) {
@@ -183,18 +435,38 @@ app.post("/products", upload.single("imageFile"), async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
-app.delete("/products/:id", async (req, res) => {
+app.put("/products/:id", upload.single("imageFile"), async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+    const { name, price, category, description, size, brand, rating, color, imageUrl } = req.body;
+    const { id } = req.params;
+
+    const updateData = { name, price, category, description, size, brand, color, rating: rating ? Number(rating) : null };
+
+    if (req.file) {
+      updateData.image = "/uploads/" + req.file.filename;
+    } else if (imageUrl) {
+      updateData.image = imageUrl;
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+    res.json({ success: true, product: updatedProduct });
   } catch (err) {
-    console.error("Delete error:", err);
-    res.status(500).json({ success: false, message: "Delete failed" });
+    console.error("Update product error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// Order APIs
+// ✅ Delete product
+app.delete("/products/:id", async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+// -------------------- ORDER ROUTES --------------------
 app.post("/orders", async (req, res) => {
   try {
     const { email, products, totalAmount } = req.body;
@@ -241,7 +513,7 @@ app.put("/orders/:id", async (req, res) => {
   }
 });
 
-// Analytics
+// -------------------- ANALYTICS --------------------
 app.get("/analytics", async (req, res) => {
   try {
     const [totalUsers, totalAdmins, totalProducts, totalOrders, totalRevenueAgg] = await Promise.all([
@@ -265,5 +537,10 @@ app.get("/analytics", async (req, res) => {
   }
 });
 
-// Start Server
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+// -------------------- SERVE FRONTEND --------------------
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/Ecommerce.html"));
+});
+
+// -------------------- START SERVER --------------------
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
