@@ -1,0 +1,359 @@
+
+   
+*{
+    margin: 0;
+    font-family: Arial;
+    border: border-box;
+}
+.navbar{
+    width: 100%;
+    height: 80px;
+    background-color:#A6AEBF;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.Search_icon{
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: aliceblue;
+
+}
+.nav_search{
+    background-color: aliceblue;
+    margin-bottom: 8px;
+    margin-top: 9px;
+    display: flex;
+    justify-content: space-evenly;
+    width: 720px;
+    height: 50px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+}
+.search-input{
+    font-size: 1rem;
+    border: none;
+    width: 100%;
+}
+.cart{
+    font-size: 35px;
+    margin-top: 20px;
+   
+}
+.login{
+    margin-top: 20px;
+    height: 30px;
+    font-size: 25px;
+}
+select{
+    font-size: 20px;
+}
+.return{
+    margin-top: 20px;
+}
+span{
+    font-size: 1rem;
+}
+.nav-second{
+    font-size: 1rem;
+    font-weight: 700;
+}
+.navbar1{
+    height: 550px;
+    background-color: #C5D3E8;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.navbar2{
+    height: 1120px;
+    background-color: #C5D3E8;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.box{
+    background-image: url(sandel1.jpg);
+    height: 380px;
+    width: 330px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: cover;
+}
+.box1{
+    background-image: url(sandel8.webp);
+    height: 380px;
+    width: 380px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: cover;
+}
+.box2{
+    background-image: url(sandel3.jpeg);
+    height: 300px;
+    width: 370px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: contain;
+   
+}
+.box3{
+    background-image: url(sandel4.jpeg);
+    height: 320px;
+    width: 340px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: contain;
+}
+
+.box5{
+    background-image: url(sandel5.webp);
+    height: 350px;
+    width: 510px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: contain;
+}
+.box6{
+    background-image: url(sandel6.webp);
+    height: 380px;
+    width: 510px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: contain;
+}
+.box7{
+    background-image: url(sandel7.webp);
+    height: 320px;
+    width: 510px;
+    margin-top: 20px;
+    margin-left: 10px;
+    background-size: contain;
+}
+.shoe{
+    margin-left: 10px;
+}
+.border{
+    background-color: aliceblue;
+   width: 360px;
+   height: 510px;
+   margin-top: 15px;
+}
+.border2{
+    background-color: aliceblue;
+   width: 360px;
+   height: 530px;
+   
+}
+.border1{
+    background-color: aliceblue;
+   width: 530px;
+   height: 530px;
+   margin-top: 0px;
+}
+.footbr{
+    background-color: #D0E8C5;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    height: 300px;
+}
+.foot-panel{
+    margin-top: 6px;
+}
+/* style.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+  color: #333;
+}
+
+.navbar {
+  background-color: #1e1e2f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 1rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.nav_search {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 400px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+}
+
+.Search_icon {
+  background-color: #f0f0f0;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.Search_icon:hover {
+  background-color: #ddd;
+}
+
+.login, .return, .cart {
+  margin: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.Login {
+  padding: 0.5rem 1.2rem;
+  background: #00b894;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.Login:hover {
+  background: #019874;
+}
+
+.cart i {
+  font-size: 1.5rem;
+  color: #f9ca24;
+  transition: transform 0.3s;
+}
+
+.cart i:hover {
+  transform: scale(1.2);
+}
+
+.types {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: #f1f1f1;
+  flex-wrap: wrap;
+}
+
+.types div {
+  width: 180px;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  transition: transform 0.4s ease;
+  cursor: pointer;
+}
+
+.types div:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.category-banner {
+  width: 100%;
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+  margin-top: 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 0.6rem;
+  background: #0984e3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.modal-content button:hover {
+  background: #0758a3;
+}
+
+.footbr {
+  background: #2d3436;
+  color: #dfe6e9;
+  display: flex;
+  justify-content: space-around;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+.foot-panel p, .foot-panel a {
+  margin-bottom: 0.5rem;
+}
+
+.foot-panel a {
+  color: #81ecec;
+  text-decoration: none;
+  display: block;
+}
+
+.foot-panel a:hover {
+  text-decoration: underline;
+}
